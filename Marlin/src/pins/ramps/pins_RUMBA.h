@@ -16,7 +16,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 #pragma once
@@ -25,11 +25,10 @@
  * RUMBA pin assignments
  */
 
-#define REQUIRE_MEGA2560
-#include "env_validate.h"
-
-#if HOTENDS > 3 || E_STEPPERS > 3
-  #error "RUMBA supports up to 3 hotends / E steppers."
+#ifndef __AVR_ATmega2560__
+  #error "Oops! Select 'Arduino/Genuino Mega or Mega 2560' in 'Tools > Board.'"
+#elif HOTENDS > 3 || E_STEPPERS > 3
+  #error "RUMBA supports up to 3 hotends / E-steppers. Comment out this line to continue."
 #endif
 
 #ifndef BOARD_INFO_NAME
@@ -47,28 +46,17 @@
 //
 // Limit Switches
 //
-#ifndef X_MIN_PIN
-  #define X_MIN_PIN                           37
-#endif
-#ifndef X_MIN_PIN
-  #define X_MIN_PIN                           37
-#endif
-#ifndef X_MAX_PIN
-  #define X_MAX_PIN                           36
-#endif
-#ifndef Y_MIN_PIN
-  #define Y_MIN_PIN                           35
-#endif
-#ifndef Y_MAX_PIN
-  #define Y_MAX_PIN                           34
-#endif
-#ifndef Z_MIN_PIN
-  #define Z_MIN_PIN                           33
-#endif
-#ifndef Z_MAX_PIN
-  #define Z_MAX_PIN                           32
-#endif
+#define X_MIN_PIN                             37
+#define X_MAX_PIN                             36
+#define Y_MIN_PIN                             35
+#define Y_MAX_PIN                             34
+#define Z_MIN_PIN                             33
+#define Z_MAX_PIN                             32
 
+//
+// Filament Runout
+//
+#define FIL_RUNOUT_PIN                        34
 //
 // Z Probe (when not Z_MIN_PIN)
 //
@@ -147,6 +135,10 @@
   #define TEMP_BED_PIN                        11  // Analog Input (default connector for thermistor *THB* on rumba board is used)
 #endif
 
+#ifndef TEMP_PROBE_PIN
+#define TEMP_PROBE_PIN                        TEMP_1_PIN
+#endif
+
 //
 // Heaters / Fans
 //
@@ -157,22 +149,19 @@
 #define HEATER_BED_PIN                         9
 
 #ifndef FAN_PIN
-  #define FAN_PIN                              7
+  #define FAN_PIN           8
 #endif
-#ifndef FAN1_PIN
-  #define FAN1_PIN                             8
-#endif
+//#ifndef FAN1_PIN
+  #define FAN1_PIN                             7
+//#endif
 
 //
 // Misc. Functions
 //
 #define LED_PIN                               13
 #define PS_ON_PIN                             45
-#define KILL_PIN                              46
-
-#ifndef CASE_LIGHT_PIN
-  #define CASE_LIGHT_PIN                      45
-#endif
+#define KILL_PIN                              81
+#define CASE_LIGHT_PIN                        3
 
 //
 // M3/M4/M5 - Spindle/Laser Control
@@ -190,61 +179,52 @@
 //
 // LCD / Controller
 //
-#if EITHER(MKS_12864OLED, MKS_12864OLED_SSD1306)
-  #define LCD_PINS_DC                         38  // Set as output on init
-  #define LCD_PINS_RS                         41  // Pull low for 1s to init
-  // DOGM SPI LCD Support
-  #define DOGLCD_CS                           19
-  #define DOGLCD_MOSI                         42
-  #define DOGLCD_SCK                          18
-  #define DOGLCD_A0                  LCD_PINS_DC
-#elif ENABLED(FYSETC_MINI_12864)
-  #define DOGLCD_CS                           42
-  #define DOGLCD_A0                           19
-  #define DOGLCD_MOSI                         51
-  #define DOGLCD_SCK                          52
+/* #define SD_DETECT_PIN      49 //49 */
+/* #define BEEPER_PIN         44 //44 */
+/* #define LCD_PINS_D7        40 //40 */
+/* #define BTN_EN1            12 //11 */
+/* #define BTN_EN2            11 //12 */
+/* #define BTN_ENC            43 //43 */
 
-  //#define FORCE_SOFT_SPI                        // Use this if default of hardware SPI causes display problems
-                                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+/* #define LCD_PINS_RS        19 */
+/* #define LCD_PINS_ENABLE    42 */
+/* #define LCD_PINS_D4        81 */
+/* #define LCD_PINS_D5        38 */
+/* #define LCD_PINS_D6        41 */
 
-  #define LCD_RESET_PIN                       18  // Must be high or open for LCD to operate normally.
+/* #if ENABLED(MKS_12864OLED) || ENABLED(MKS_12864OLED_SSD1306) */
+/*   #define LCD_PINS_DC      38 // Set as output on init */
+/*   #define LCD_PINS_RS      41 // Pull low for 1s to init */
+/*   // DOGM SPI LCD Support */
+/*   #define DOGLCD_CS        19 */
+/*   #define DOGLCD_MOSI      42 */
+/*   #define DOGLCD_SCK       18 */
+/*   #define DOGLCD_A0        LCD_PINS_DC */
+/* #else */
+/*   #define LCD_PINS_RS      19 */
+/*   #define LCD_PINS_ENABLE  42 */
+/*   #define LCD_PINS_D4      18 */
+/*   #define LCD_PINS_D5      38 */
+/*   #define LCD_PINS_D6      41 */
+/* #endif */
 
-  #if EITHER(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-    #ifndef RGB_LED_R_PIN
-      #define RGB_LED_R_PIN                   41
-    #endif
-    #ifndef RGB_LED_G_PIN
-      #define RGB_LED_G_PIN                   38
-    #endif
-    #ifndef RGB_LED_B_PIN
-      #define RGB_LED_B_PIN                   40
-    #endif
-  #elif ENABLED(FYSETC_MINI_12864_2_1)
-    #define NEOPIXEL_PIN                      38
-  #endif
-
-#else
-  #define LCD_PINS_RS                         19
-  #define LCD_PINS_ENABLE                     42
-  #define LCD_PINS_D4                         18
-  #define LCD_PINS_D5                         38
-  #define LCD_PINS_D6                         41
-#endif
-
-#define LCD_PINS_D7                           40
+// TRINAMIC CS PINS
+#define X_CS_PIN           14   // PJ1 J11-11
+#define Y_CS_PIN           15   // PJ0 J11-12
+#define Z_CS_PIN           63   // PK1 J11-07 PC6 J11-14
 
 //
-// Beeper, SD Card, Encoder
+// LCD / Controller
 //
-#define BEEPER_PIN                            44
-
-#if ENABLED(SDSUPPORT)
-  #define SDSS                                53
-  #define SD_DETECT_PIN                       49
-#endif
-
-#if IS_NEWPANEL
-  #define BTN_EN1                             11
-  #define BTN_EN2                             12
-  #define BTN_ENC                             43
-#endif
+#define SDSS               53  // added
+#define SD_DETECT_PIN      49
+#define BEEPER_PIN         44
+#define LCD_PINS_RS        19
+#define LCD_PINS_ENABLE    42
+#define LCD_PINS_D4        18
+#define LCD_PINS_D5        38
+#define LCD_PINS_D6        41
+#define LCD_PINS_D7        40
+#define BTN_EN1            11
+#define BTN_EN2            12
+#define BTN_ENC            43
